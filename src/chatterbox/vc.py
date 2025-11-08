@@ -3,7 +3,9 @@ from pathlib import Path
 import librosa
 import torch
 import perth
-from huggingface_hub import hf_hub_download
+# A função hf_hub_download não é mais usada, mas pode ser mantida
+# ou removida dos imports.
+from huggingface_hub import hf_hub_download 
 from safetensors.torch import load_file
 
 from .models.s3tokenizer import S3_SR
@@ -58,8 +60,28 @@ class ChatterboxVC:
 
         return cls(s3gen, device, ref_dict=ref_dict)
 
+    # --- INÍCIO DA MODIFICAÇÃO ---
     @classmethod
-    def from_pretrained(cls, device) -> 'ChatterboxVC':
+    def from_pretrained(cls, model_dir: str, device) -> 'ChatterboxVC':
+        """
+        Carrega modelos pré-treinados de um diretório local especificado.
+        O download automático do Hugging Face foi desabilitado.
+        
+        Args:
+            model_dir (str): O caminho para o diretório local onde os 
+                             arquivos do modelo (.safetensors, .pt) estão armazenados.
+            device: O dispositivo (ex: 'cpu' ou 'cuda') para carregar os modelos.
+        """
+        print(f"Carregando modelos do diretório local: {model_dir}")
+        ckpt_dir = Path(model_dir)
+
+        # Verifica se o diretório existe
+        if not ckpt_dir.is_dir():
+            raise FileNotFoundError(
+                f"O diretório de modelos especificado não foi encontrado: {model_dir}\n"
+                "Por favor, baixe os modelos manualmente e forneça o caminho correto."
+            )
+
         # Check if MPS is available on macOS
         if device == "mps" and not torch.backends.mps.is_available():
             if not torch.backends.mps.is_built():
@@ -67,11 +89,17 @@ class ChatterboxVC:
             else:
                 print("MPS not available because the current MacOS version is not 12.3+ and/or you do not have an MPS-enabled device on this machine.")
             device = "cpu"
-            
-        for fpath in ["s3gen.safetensors", "conds.pt"]:
-            local_path = hf_hub_download(repo_id=REPO_ID, filename=fpath)
+        
+        # O loop de download foi removido.
+        # O código original era:
+        # for fpath in ["s3gen.safetensors", "conds.pt"]:
+        #     local_path = hf_hub_download(repo_id=REPO_ID, filename=fpath)
+        #
+        # return cls.from_local(Path(local_path).parent, device)
 
-        return cls.from_local(Path(local_path).parent, device)
+        # Agora, simplesmente chamamos from_local com o caminho fornecido.
+        return cls.from_local(ckpt_dir, device)
+    # --- FIM DA MODIFICAÇÃO ---
 
     def set_target_voice(self, wav_fpath):
         ## Load reference wav
