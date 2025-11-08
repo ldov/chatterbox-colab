@@ -7,7 +7,9 @@ import torch
 import perth
 import torch.nn.functional as F
 from safetensors.torch import load_file as load_safetensors
-from huggingface_hub import snapshot_download
+# A função snapshot_download não é mais usada, mas pode ser mantida
+# ou removida dos imports se você preferir.
+from huggingface_hub import snapshot_download 
 
 from .models.t3 import T3
 from .models.t3.modules.t3_config import T3Config
@@ -126,7 +128,7 @@ class Conditionals:
 
     @classmethod
     def load(cls, fpath, map_location="cpu"):
-        kwargs = torch.load(fpath, map_location=map_location, weights_only=True)
+        kwargs = torch.load(ffpath, map_location=map_location, weights_only=True)
         return cls(T3Cond(**kwargs['t3']), kwargs['gen'])
 
 
@@ -190,18 +192,43 @@ class ChatterboxMultilingualTTS:
 
         return cls(t3, s3gen, ve, tokenizer, device, conds=conds)
 
+    # --- INÍCIO DA MODIFICAÇÃO ---
     @classmethod
-    def from_pretrained(cls, device: torch.device) -> 'ChatterboxMultilingualTTS':
-        ckpt_dir = Path(
-            snapshot_download(
-                repo_id=REPO_ID,
-                repo_type="model",
-                revision="main", 
-                allow_patterns=["ve.pt", "t3_mtl23ls_v2.safetensors", "s3gen.pt", "grapheme_mtl_merged_expanded_v1.json", "conds.pt", "Cangjie5_TC.json"],
-                token=os.getenv("HF_TOKEN"),
+    def from_pretrained(cls, model_dir: str, device: torch.device) -> 'ChatterboxMultilingualTTS':
+        """
+        Carrega modelos pré-treinados de um diretório local especificado.
+        O download automático do Hugging Face foi desabilitado.
+        
+        Args:
+            model_dir (str): O caminho para o diretório local onde os 
+                             arquivos do modelo (.pt, .safetensors, .json) estão armazenados.
+            device (torch.device): O dispositivo (ex: 'cpu' ou 'cuda') para carregar os modelos.
+        """
+        print(f"Carregando modelos do diretório local: {model_dir}")
+        ckpt_dir = Path(model_dir)
+
+        # Verifica se o diretório existe
+        if not ckpt_dir.is_dir():
+            raise FileNotFoundError(
+                f"O diretório de modelos especificado não foi encontrado: {model_dir}\n"
+                "Por favor, baixe os modelos manualmente e forneça o caminho correto."
             )
-        )
+            
+        # A função snapshot_download foi removida para impedir o download automático.
+        # O código original era:
+        # ckpt_dir = Path(
+        #     snapshot_download(
+        #         repo_id=REPO_ID,
+        #         repo_type="model",
+        #         revision="main", 
+        #         allow_patterns=["ve.pt", "t3_mtl23ls_v2.safetensors", "s3gen.pt", "grapheme_mtl_merged_expanded_v1.json", "conds.pt", "Cangjie5_TC.json"],
+        #         token=os.getenv("HF_TOKEN"),
+        #     )
+        # )
+
+        # Agora, simplesmente chamamos from_local com o caminho fornecido.
         return cls.from_local(ckpt_dir, device)
+    # --- FIM DA MODIFICAÇÃO ---
     
     def prepare_conditionals(self, wav_fpath, exaggeration=0.5):
         ## Load reference wav
