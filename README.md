@@ -63,14 +63,14 @@ from chatterbox.tts import ChatterboxTTS
 from chatterbox.mtl_tts import ChatterboxMultilingualTTS
 
 # English example
-model = ChatterboxTTS.from_pretrained(device="cuda")
+model = ChatterboxTTS.from_pretrained(model_dir="/caminho/para/sua/pasta/modelos", device="cuda")
 
 text = "Ezreal and Jinx teamed up with Ahri, Yasuo, and Teemo to take down the enemy's Nexus in an epic late-game pentakill."
 wav = model.generate(text)
 ta.save("test-english.wav", wav, model.sr)
 
 # Multilingual examples
-multilingual_model = ChatterboxMultilingualTTS.from_pretrained(device=device)
+multilingual_model = ChatterboxMultilingualTTS.from_pretrained(model_dir="/caminho/para/sua/pasta/modelos", device="cuda")
 
 french_text = "Bonjour, comment ça va? Ceci est le modèle de synthèse vocale multilingue Chatterbox, il prend en charge 23 langues."
 wav_french = multilingual_model.generate(spanish_text, language_id="fr")
