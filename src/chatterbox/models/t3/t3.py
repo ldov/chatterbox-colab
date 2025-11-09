@@ -47,6 +47,16 @@ class T3(nn.Module):
         super().__init__()
         self.hp = hp
         self.cfg = LlamaConfig(**LLAMA_CONFIGS[hp.llama_config_name])
+        
+        # Força o 'eager' e desliga 'attentions' na config
+        # ANTES de o LlamaModel ser criado.
+        self.cfg.attn_implementation = "eager"
+        self.cfg.output_attentions = False
+        # --- FIM DA CORREÇÃO ---
+
+        self.tfmr = LlamaModel(self.cfg)
+
+        self.cfg = LlamaConfig(**LLAMA_CONFIGS[hp.llama_config_name])
         self.tfmr = LlamaModel(self.cfg)
         self.dim = self.cfg.hidden_size
         self.deepspeed_patch_applied = False
