@@ -9,19 +9,19 @@ authors = [
     {name = "resemble-ai", email = "engineering@resemble.ai"}
 ]
 dependencies = [
-    "numpy>=1.24.0,<3.0.0",
-    "librosa>=0.11.0,<0.12.0",
-    "s3tokenizer>=0.1.0",
-    "torch>=2.6.0,<2.7.0",
-    "torchaudio>=2.6.0,<2.7.0",
-    "transformers>=4.46.3,<4.54.0",
-    "diffusers>=0.29.0,<0.35.0",
-    "resemble-perth>=1.0.1",
-    "conformer>=0.3.2",
-    "safetensors>=0.5.3",
-    "spacy-pkuseg>=0.0.32",
-    "pykakasi>=2.3.0",
-    "gradio<5.0.0",
+    "numpy>=1.24.0,<1.26.0",
+    "librosa==0.11.0",
+    "s3tokenizer",
+    "torch==2.6.0",
+    "torchaudio==2.6.0",
+    "transformers==4.46.3",
+    "diffusers==0.29.0",
+    "resemble-perth==1.0.1",
+    "conformer==0.3.2",
+    "safetensors==0.5.3",
+    "spacy-pkuseg",
+    "pykakasi==2.3.0",
+    "gradio==5.44.1",
     "russian-text-stresser @ git+https://github.com/Vuizur/add-stress-to-epub",
 
 ]
